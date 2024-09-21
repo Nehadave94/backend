@@ -10,6 +10,16 @@ app.use(express.json({ limit: "10mb" }));
 
 const PORT = process.env.PORT || 8080;
 
+
+// const express = require('express');
+//const router = express.Router();
+// const Product = require('../models/Product'); // Assuming you have a Product model
+
+// Update Product
+
+
+
+
 //mongodb connection
 mongoose.set("strictQuery", false);
 mongoose
@@ -36,6 +46,58 @@ const userModel = mongoose.model("user", userSchema);
 //api
 app.get("/", (req, res) => {
   res.send("Server is running");
+});
+
+
+// Delete Product
+app.post('/deleteProduct/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the product and delete it
+    const deletedProduct = await productModel.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.status(200).json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({ message: 'Failed to delete product' });
+  }
+});
+
+
+
+
+//update update details 
+app.post('/updateProduct/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, category, price, description } = req.body;
+
+    // Validate input
+    if (!name || !category || !price) {
+      return res.status(400).json({ message: 'Name, category, and price are required' });
+    }
+
+    // Find the product and update it
+    const updatedProduct = await productModel.findByIdAndUpdate(
+      id,
+      { name, category, price, description },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.status(200).json({ message: 'Product updated successfully', product: updatedProduct });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({ message: 'Error updating product', error: error.message });
+  }
 });
 
 //sign up
@@ -106,6 +168,11 @@ app.post("/uploadProduct",async(req,res)=>{
     console.log(datasave)
     res.send({message : "Upload successfully"})
 })
+
+// function to show all the products for admin: 
+
+
+
 
 //
 app.get("/product",async(req,res)=>{

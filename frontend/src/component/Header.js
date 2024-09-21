@@ -6,6 +6,8 @@ import { BsCartFill } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutRedux } from "../redux/userSlice";
 import { toast } from "react-hot-toast";
+import { createSlice } from '@reduxjs/toolkit';
+
 
 const Header = () => {
   const [showMenu, setShowMenu] = useState(false);
@@ -20,7 +22,30 @@ const Header = () => {
     dispatch(logoutRedux());
     toast("Logout successfully");
   };
-
+  // In your userSlice.js
+const userSlice = createSlice({
+  name: 'user',
+  initialState: {
+    email: null,
+    firstName: null,
+    image: null,
+    // other user properties
+  },
+  reducers: {
+    loginRedux: (state, action) => {
+      state.email = action.payload.email;
+      state.firstName = action.payload.firstName;
+      state.image = action.payload.image;
+      // Set other user properties
+    },
+    logoutRedux: (state) => {
+      state.email = null;
+      state.firstName = null;
+      state.image = null;
+      // Reset other user properties
+    },
+  },
+});
   const cartItemNumber = useSelector((state)=>state.product.cartItem)
   return (
     <header className="fixed shadow-md w-full h-16 px-2 md:px-4 z-50 bg-white">
@@ -48,60 +73,75 @@ const Header = () => {
               </div>
             </Link>
           </div>
-          <div className=" text-slate-600" onClick={handleShowMenu}>
-            <div className="text-3xl cursor-pointer w-8 h-8 rounded-full overflow-hidden drop-shadow-md">
-              {userData.image ? (
-                <img src={userData.image} className="h-full w-full" />
-              ) : (
-                <HiOutlineUserCircle />
-              )}
-            </div>
-            {showMenu && (
-              <div className="absolute right-2 bg-white py-2  shadow drop-shadow-md flex flex-col min-w-[120px] text-center">
-                {userData.email === process.env.REACT_APP_ADMIN_EMAIL && (
-                  <Link
-                    to={"newproduct"}
-                    className="whitespace-nowrap cursor-pointer px-2"
-                  >
-                    New product
-                  </Link>
-                )}
+          <div className="text-slate-600" onClick={handleShowMenu}>
+  <div className="text-3xl cursor-pointer w-8 h-8 rounded-full overflow-hidden drop-shadow-md">
+    {userData.image ? (
+      <img src={userData.image} className="h-full w-full" alt="User" />
+    ) : (
+      <HiOutlineUserCircle />
+    )}
+  </div>
+  {showMenu && (
+    <div className="absolute right-2 bg-white py-2 shadow drop-shadow-md flex flex-col min-w-[120px] text-center">
+      {userData.email ? (
+        <>
+          <p className="px-2 py-1 text-sm font-semibold">{userData.email}</p>
+          <hr className="my-1" />
+          <p
+            className="cursor-pointer text-white px-2 py-1 bg-red-500 hover:bg-red-600"
+            onClick={handleLogout}
+          >
+            Logout
+          </p>
+        </>
+      ) : (
+        <Link
+          to={"login"}
+          className="whitespace-nowrap cursor-pointer px-2 py-1 hover:bg-gray-100"
+        >
+          Login
+        </Link>
+      )}
+      {userData.email === process.env.REACT_APP_ADMIN_EMAIL && (
+        <Link
+          to={"newproduct"}
+          className="whitespace-nowrap cursor-pointer px-2 py-1 hover:bg-gray-100"
+        >
+          New product
+        </Link>
+        
+      )}
+      {userData.email === process.env.REACT_APP_ADMIN_EMAIL && (
+        <Link
+          to={"ProductList"}
+          className="whitespace-nowrap cursor-pointer px-2 py-1 hover:bg-gray-100"
+        >
+          Product List
+        </Link>
+        
+      )}
 
-                {userData.image ? (
-                  <p
-                    className="cursor-pointer text-white px-2 bg-red-500"
-                    onClick={handleLogout}
-                  >
-                    Logout ({userData.firstName}){" "}
-                  </p>
-                ) : (
-                  <Link
-                    to={"login"}
-                    className="whitespace-nowrap cursor-pointer px-2"
-                  >
-                    Login
-                  </Link>
-                )}
-                <nav className="text-base md:text-lg flex flex-col md:hidden">
-                  <Link to={""} className="px-2 py-1">
-                    Home
-                  </Link>
-                  <Link
-                    to={"menu/63f0fdbb3bcc2f97fa53d25d"}
-                    className="px-2 py-1"
-                  >
-                    Menu
-                  </Link>
-                  <Link to={"about"} className="px-2 py-1">
-                    About
-                  </Link>
-                  <Link to={"contact"} className="px-2 py-1">
-                    Contact
-                  </Link>
-                </nav>
-              </div>
-            )}
-          </div>
+      <nav className="text-base md:text-lg flex flex-col md:hidden">
+        <Link to={""} className="px-2 py-1 hover:bg-gray-100">
+          Home
+        </Link>
+        <Link
+          to={"menu/63f0fdbb3bcc2f97fa53d25d"}
+          className="px-2 py-1 hover:bg-gray-100"
+        >
+          Menu
+        </Link>
+        <Link to={"about"} className="px-2 py-1 hover:bg-gray-100">
+          About
+        </Link>
+        <Link to={"contact"} className="px-2 py-1 hover:bg-gray-100">
+          Contact
+        </Link>
+      </nav>
+    </div>
+  )}
+</div>
+
         </div>
       </div>
 
